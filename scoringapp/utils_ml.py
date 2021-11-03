@@ -3,6 +3,7 @@ import os
 import pickle
 import lightgbm
 import pandas as pd
+import numpy as np
 from flask import jsonify
 from lime import lime_tabular
 import dill
@@ -46,20 +47,15 @@ def model_predict():
   # return target + lime or shap
 
   pickle_path = os.getcwd()+"/scoringapp/models_pkl/"
-  #model2 =  pickle.load(open(pickle_path), 'r')
+
   model = joblib.load(pickle_path + "light_gbm.pkl",'r')
-  #explainer_light = dill.load(pickle_path + "explainer_light.pkl",'rb')
-  #pickle_file_path = os.path.join(my_dir, "light_gbm.pkl")
+
   with open(pickle_path +"explainer_light.pkl", "rb") as f:
     explainer_light = dill.load(f)
-    #model = joblib.load( f,'rb')
-  # , lime:{....}
-  response = model.predict(pd.DataFrame(data))
-  print('RESSSSSSSSSS', response)
-  exp_light = explainer_light.explain_instance(data[
-    0], model.predict_proba,
-  labels=response[0], num_features=5)
 
-  #
-  exp_light.as_pyplot_figure()
-  return {'target' : response.tolist(), 'lime': 'test'}
+  response = model.predict(pd.DataFrame(data))
+
+  exp_light = explainer_light.explain_instance(pd.Series(data[0]),
+  model.predict_proba, num_features=6)
+
+  return {'target' : response.tolist(), 'lime': exp_light.as_list()}
