@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -13,12 +13,13 @@ from .utils_ml import model_predict
 def index():
     return "Hello world !"
 
-#, methods=['POST']
-@app.route('/predict/')
+
+@app.route('/predict/', methods=['POST'])
 def predict():
   #getting an array of features from the post request's body
-  #query_parameters = request.args
+  payload = request.form.to_dict()
   #feature_array = np.fromstring(query_parameters['feature_array'],dtype=float,sep=",")
-  response = model_predict()
+  print('QUERRRY', payload)
+  response = model_predict(payload)
   print('RESPONSE', response)
-  return model_predict()
+  return response
