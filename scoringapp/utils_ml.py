@@ -7,6 +7,7 @@ import numpy as np
 from flask import jsonify, json
 from lime import lime_tabular
 import dill
+from sklearn.preprocessing import StandardScaler
 
 my_dir = os.path.dirname("light_gbm.pkl")
 # from models_pkl import light_gbm
@@ -117,16 +118,83 @@ def model_predict(payload):
 
     data = {}
     for key in payload:
-        data[key] = float(payload[key])
+        if key in [
+            "NAME_CONTRACT_TYPE",
+            "CODE_GENDER",
+            "FLAG_OWN_CAR",
+            "FLAG_OWN_REALTY",
+            "CNT_CHILDREN",
+            "AMT_INCOME_TOTAL",
+            "AMT_CREDIT",
+            "REGION_RATING_CLIENT_W_CITY",
+            "NEW_INCOME_CREDIT_RATIO",
+            "NAME_INCOME_TYPE_Commercial associate",
+            "NAME_INCOME_TYPE_Pensioner",
+            "NAME_INCOME_TYPE_State servant",
+            "NAME_INCOME_TYPE_Working",
+            "NAME_EDUCATION_TYPE_Higher education",
+            "NAME_EDUCATION_TYPE_Incomplete higher",
+            "NAME_EDUCATION_TYPE_Lower secondary",
+            "NAME_EDUCATION_TYPE_Secondary_secondary_special",
+            "NAME_FAMILY_STATUS_Civil marriage",
+            "NAME_FAMILY_STATUS_Married",
+            "NAME_FAMILY_STATUS_Separated",
+            "NAME_FAMILY_STATUS_Single_not_married",
+            "NAME_FAMILY_STATUS_Widow",
+            "NAME_HOUSING_TYPE_Co-op apartment",
+            "NAME_HOUSING_TYPE_House_apartment",
+            "NAME_HOUSING_TYPE_Municipal apartment",
+            "NAME_HOUSING_TYPE_Office apartment",
+            "NAME_HOUSING_TYPE_Rented apartment",
+            "NAME_HOUSING_TYPE_With parents",
+            "OCCUPATION_TYPE_Accountants",
+            "OCCUPATION_TYPE_Core staff",
+            "OCCUPATION_TYPE_Drivers",
+            "OCCUPATION_TYPE_High_skill_staff",
+            "OCCUPATION_TYPE_Laborers",
+            "OCCUPATION_TYPE_Low_skill_staff",
+            "OCCUPATION_TYPE_Managers",
+            "OCCUPATION_TYPE_Medicine staff",
+            "OCCUPATION_TYPE_Others",
+            "OCCUPATION_TYPE_Sales staff",
+            "ORGANIZATION_TYPE_Agriculture",
+            "ORGANIZATION_TYPE_Business_Entity",
+            "ORGANIZATION_TYPE_Construction",
+            "ORGANIZATION_TYPE_Education",
+            "ORGANIZATION_TYPE_Finance",
+            "ORGANIZATION_TYPE_Government",
+            "ORGANIZATION_TYPE_Industry",
+            "ORGANIZATION_TYPE_Official",
+            "ORGANIZATION_TYPE_Other",
+            "ORGANIZATION_TYPE_Realty",
+            "ORGANIZATION_TYPE_Security",
+            "ORGANIZATION_TYPE_Self-employed",
+            "ORGANIZATION_TYPE_TourismFoodSector",
+            "ORGANIZATION_TYPE_Trade",
+            "ORGANIZATION_TYPE_Transport",
+            "ORGANIZATION_TYPE_XNA",
+            "NEW_SEGMENT_AGE_Middle_Age",
+            "NEW_SEGMENT_AGE_Old",
+            "NEW_SEGMENT_AGE_Young",
+            "NEW_SEGMENT_INCOME_High_Income",
+            "NEW_SEGMENT_INCOME_Low_Income",
+            "NEW_SEGMENT_INCOME_Middle_Income",
+        ]:
+            data[key] = float(payload[key])
     pickle_path = os.getcwd() + "/scoringapp/models_pkl/"
-
+    print("DATA ", data)
+    # TODO : update dashboard!!!
+    data["NAME_EDUCATION_TYPE_Higher education"] = 0
+    data["NAME_EDUCATION_TYPE_Incomplete higher"] = 0
+    data["NAME_EDUCATION_TYPE_Lower secondary"] = 0
+    # data=[]
     model = joblib.load(pickle_path + "lightGBM.pkl", "r")
     standardisation = joblib.load(pickle_path + "std_scale.pkl", "r")
 
     with open(pickle_path + "lightGBM_lime.pkl", "rb") as f:
         explainer_light = dill.load(f)
     print(data)
-    data_format = standardisation(pd.DataFrame([data]))
+    data_format = standardisation.transform(pd.DataFrame([data]))
     response = model.predict(data_format)
 
     exp_light = explainer_light.explain_instance(
