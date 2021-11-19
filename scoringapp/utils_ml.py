@@ -121,11 +121,13 @@ def model_predict(payload):
     pickle_path = os.getcwd() + "/scoringapp/models_pkl/"
 
     model = joblib.load(pickle_path + "lightGBM.pkl", "r")
+    standardisation = joblib.load(pickle_path + "std_scale.pkl", "r")
 
     with open(pickle_path + "lightGBM_lime.pkl", "rb") as f:
         explainer_light = dill.load(f)
     print(data)
-    response = model.predict(pd.DataFrame([data]))
+    data_format = standardisation(pd.DataFrame([data]))
+    response = model.predict(data_format)
 
     exp_light = explainer_light.explain_instance(
         pd.Series(data), model.predict_proba, num_features=6
