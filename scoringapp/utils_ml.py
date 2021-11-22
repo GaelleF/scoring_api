@@ -182,11 +182,6 @@ def model_predict(payload):
         ]:
             data[key] = float(payload[key])
     pickle_path = os.getcwd() + "/scoringapp/models_pkl/"
-    print("DATA ", data)
-    # TODO : update dashboard!!!
-    data["NAME_EDUCATION_TYPE_Higher education"] = 0
-    data["NAME_EDUCATION_TYPE_Incomplete higher"] = 0
-    data["NAME_EDUCATION_TYPE_Lower secondary"] = 0
     # data=[]
     model = joblib.load(pickle_path + "lightGBM.pkl", "r")
     standardisation = joblib.load(pickle_path + "std_scale.pkl", "r")
