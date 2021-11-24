@@ -188,7 +188,6 @@ def model_predict(payload):
 
     with open(pickle_path + "lightGBM_lime.pkl", "rb") as f:
         explainer_light = dill.load(f)
-    print(data)
     data_format = standardisation.transform(pd.DataFrame([data]))
     response = model.predict(data_format)
 
